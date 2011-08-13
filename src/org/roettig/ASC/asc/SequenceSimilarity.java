@@ -1,18 +1,14 @@
 package org.roettig.ASC.asc;
 
 import org.biojava.bio.seq.Sequence;
-import org.roettig.ML2.base.DualInstance;
-import org.roettig.ML2.base.Instance;
-import org.roettig.ML2.base.Label;
-import org.roettig.ML2.kernels.SimilarityMeasure;
 import org.roettig.SequenceTools.AlignedSequenceIdentity;
 import org.roettig.SequenceTools.GlobalSequenceIdentity;
 import org.roettig.SequenceTools.SeqTools;
 
 
-public class SequenceSimilarity implements SimilarityMeasure<DualInstance<String>>
+public class SequenceSimilarity //implements SimilarityMeasure<DualInstance<String>>
 {
-
+	/*
 	private static final long	serialVersionUID	= 2782899364793354337L;
 	
 	public static int GLOBAL  = 0;
@@ -52,5 +48,5 @@ public class SequenceSimilarity implements SimilarityMeasure<DualInstance<String
 			pid = AlignedSequenceIdentity.getInstance().calculate(seq1.seqString(), seq2.seqString());
 		return 1.0-pid;
 	}
-
+	*/
 }

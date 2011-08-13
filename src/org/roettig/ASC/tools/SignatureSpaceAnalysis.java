@@ -18,7 +18,7 @@ import org.roettig.SequenceTools.exception.FileParseErrorException;
  */
 public class SignatureSpaceAnalysis
 {
-
+/*
 	public static void doDistanceAnalysis(SequenceSet x, SequenceSet y, SimilarityDelegate sim)
 	{
 		for(Sequence sx: x)
@@ -66,6 +66,7 @@ public class SignatureSpaceAnalysis
 		}
 	}
 
+*/
 	/**
 	 * @param args
 	 * @throws FileParseErrorException 
@@ -73,12 +74,12 @@ public class SignatureSpaceAnalysis
 	 */
 	public static void main(String[] args) throws FileParseErrorException, IOException
 	{
-
+		/*
 		SequenceSet knownSeqs   = SequenceSet.readFromFile("/home/roettig/coops/nrps/nrps_unknown/sigs-known.afa");
 		//SequenceSet unknownSeqs = SequenceSet.readFromFile("/home/roettig/coops/nrps/nrps_unknown/sigs-unknown.afa");
 		SequenceSet unknownSeqs = SequenceSet.readFromFile("/home/roettig/coops/wohlleben2/bact/big1/sig-orig.afa");
 		doDistanceAnalysis(unknownSeqs,knownSeqs, new BLOSUMSimilarityDelegate());
-
+		*/
 		/*
 	System.out.println("haha");
 	BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/mat-chemsim-red")); 
