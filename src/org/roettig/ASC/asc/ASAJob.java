@@ -1,21 +1,15 @@
 package org.roettig.ASC.asc;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
-import org.biojava.bio.structure.Group;
 
 import org.roettig.PDBTools.ResidueLocator;
 import org.roettig.PDBTools.SequenceAnchoredResidue;
@@ -40,6 +34,8 @@ public class ASAJob implements Serializable
 	private String MSAmethod      = "muscle";
 	private String templatesequence;
 	private String jobid;
+	private String qualityname;
+	private double quality;
 	private double fmeasure;
 	private int numberOfClasses;
 	private Map<String,Double> seqids  = new HashMap<String,Double>();
@@ -70,9 +66,6 @@ public class ASAJob implements Serializable
 	private Map<Integer, Map<Integer,double[]> > scores = new HashMap<Integer, Map<Integer,double[]> >();
 
 	Map<String, List<Double> > hyperparams;
-
-
-
 
 	public String getMSAmethod()
 	{
@@ -355,6 +348,26 @@ public class ASAJob implements Serializable
 		return precs;
 	}
 
+	public double getQuality()
+	{
+		return quality;
+	}
+	
+	public void setQuality(double quality)
+	{
+		this.quality = quality;
+	}
+	
+	public String getQualityName()
+	{
+		return qualityname;
+	}
+	
+	public void setQualityName(String name)
+	{
+		qualityname = name;
+	}
+	
 	public void setPrecs(Map<String, Double> precs)
 	{
 		this.precs = precs;
