@@ -54,7 +54,9 @@ public class ASC extends ASAFlow
 				lab =  new FactorLabel(ctx.jd.getClassnames().get(c-1));
 			
 			ctx.labels.add(lab);
+			
 			log("readSequences"," "+filename+": mapping "+ctx.jd.getClassnames().get(c-1)+" --> "+lab);
+			
 			ctx.label_2_classname.put(lab,ctx.jd.getClassnames().get(c-1));
 
 			SequenceSet seqs = null;
@@ -76,7 +78,7 @@ public class ASC extends ASAFlow
 			for(Sequence seq: seqs)
 			{
 				String sid = String.format("%d|%d",c,idx);
-				//Sequence tmpseq = SeqTools.makeProteinSequence(c+"|"+seq.getName(),seq.seqString());
+				
 				Sequence tmpseq = SeqTools.makeProteinSequence(sid,seq.seqString());
 
 				ctx.intern_seq_name_2_orig_seqname.put(sid,seq.getName());
@@ -200,15 +202,16 @@ public class ASC extends ASAFlow
 		
 		
 		SelectedModel<PrimalInstance> bestModel = null;
+		
 		log("validateModel","### Doing Nested CV ####");
 
-		//int nInner = ctx.jd.getNInnerFolds();
-		//int nOuter = ctx.jd.getNOuterFolds();
-		//
+		int nInner = ctx.jd.getNInnerFolds();
+		int nOuter = ctx.jd.getNOuterFolds();
+		
 		
 		try
 		{
-			bestModel = ModelValidation.SimpleNestedCV( 2, 2, ctx.samples, m);
+			bestModel = ModelValidation.SimpleNestedCV( nOuter, nInner, ctx.samples, m);
 		}
 		catch(Exception e)
 		{
@@ -218,35 +221,30 @@ public class ASC extends ASAFlow
 		
 		ctx.model = bestModel.model;
 		ctx.jd.setFmeasure(bestModel.qual);
-		/*
-		List<Label> yp = null; List<Label> yt = null;
+		
+		List<Label> yp = new ArrayList<Label>(); List<Label> yt = new ArrayList<Label>();
 		Prediction.split(bestModel.predictions, yt, yp);
+		
+		Map<String,Double> precs = new HashMap<String,Double>();
+		Map<String,Double> recs  = new HashMap<String,Double>();
 		
 		for(Label lab: ctx.labels)
 		{
-			System.out.println("label="+lab);
 			List<Double> prec_rec = Statistics.calcPrecRec(lab, yp, yt);
-			log("###",String.format(Locale.ENGLISH,"prec(%s)=%.3f rec(%s)=%.3f",lab.toString(),prec_rec.get(0),lab.toString(),prec_rec.get(1)));
+			log("###",String.format(Locale.ENGLISH,"prec(%s)=%.5f rec(%s)=%.5f",lab.toString(),prec_rec.get(0),lab.toString(),prec_rec.get(1)));
+			String classname = ctx.label_2_classname.get(lab);
+			precs.put(classname,prec_rec.get(0));
+			recs.put(classname,prec_rec.get(1));
 		}
-		*/
-		/*
-		Map<Object, List<Double>> stats = Statistics.calcDetailedPrecRecStats(bestModel.Yp, bestModel.Y);
 
-		Map<String,Double> precs = new HashMap<String,Double>();
-		Map<String,Double> recs  = new HashMap<String,Double>();
-
-		for(Object o: stats.keySet())
-		{
-			log("###",String.format(Locale.ENGLISH,"prec(%s)=%.3f rec(%s)=%.3f",o,stats.get(o).get(0),o,stats.get(o).get(1)));
-			String classname = ctx.label_2_classname.get((Label) o);
-			precs.put(classname,stats.get(o).get(0));
-			recs.put(classname,stats.get(o).get(1));
-		}
 		ctx.jd.setPrecs(precs);
 		ctx.jd.setRecs(recs);
-		*/
+
+		ctx.jd.setQualityName(bestModel.model.getQualityMeasure().getClass().getCanonicalName());
+		ctx.jd.setQuality(bestModel.qual);
+				
+		log("validateModel","qual="+bestModel.qual);
 		
-		log("validateModel","qual="+bestModel.qual);			
 		try
 		{
 			bestModel.model.store(ctx.outputdir+"/ASCmodel");
@@ -257,36 +255,9 @@ public class ASC extends ASAFlow
 		}
 	}
 
-
-
-	public static void main(String[] args) throws Exception
-	{
-		ASAJob jd = new ASAJob();
-		jd.setPdbfile("/tmp/nrps/1AMU.pdb");
-		jd.setOutputDir("/tmp/nrps/results");
-		ResidueLocator resloc = new ResidueLocator("A","PHE",566);
-		List<ResidueLocator> reslocs = new ArrayList<ResidueLocator>();
-		reslocs.add(resloc);
-		jd.setReslocs(reslocs);
-		jd.setDistance(20.0);
-		List<String> filenames = new ArrayList<String>();
-		//filenames.add("/tmp/3.fas");
-		//filenames.add("/tmp/nrps/ala.fa");
-		filenames.add("/tmp/nrps/tyr.fa");
-		filenames.add("/tmp/nrps/asp.fa");
-		//filenames.add("/tmp/nrps/leu.fa");
-		//filenames.add("/tmp/nrps/val.fa");
-		jd.setFilenames(filenames);
-		List<String> classnames = new ArrayList<String>();
-		//classnames.add("ala");
-		classnames.add("tyr");
-		classnames.add("asp");
-		//classnames.add("leu");
-		//classnames.add("val");
-		jd.setClassnames(classnames);
-		ASAFlow flow = new ASC(jd);
-		flow.run();		
-		jd.save("/tmp/nrps/job.ini");
+	@Override
+	protected void buildFinalModel()
+	{		
 	}
 
 }

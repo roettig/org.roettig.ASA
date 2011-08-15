@@ -30,11 +30,7 @@ import org.roettig.MLToolbox.base.instance.InstanceContainer;
 import org.roettig.MLToolbox.base.instance.PrimalInstance;
 import org.roettig.MLToolbox.base.label.FactorLabel;
 import org.roettig.MLToolbox.base.label.Label;
-import org.roettig.MLToolbox.kernels.RBFKernel;
-import org.roettig.MLToolbox.model.CSVCModel;
 import org.roettig.MLToolbox.model.Model;
-import org.roettig.MLToolbox.model.SelectedModel;
-import org.roettig.MLToolbox.validation.ModelValidation;
 import org.roettig.PDBTools.PDBTools;
 import org.roettig.PDBTools.ResidueLocator;
 import org.roettig.PDBTools.SequenceAnchoredResidue;
@@ -44,10 +40,17 @@ import org.roettig.SequenceTools.MSA;
 import org.roettig.SequenceTools.SeqTools;
 import org.roettig.SequenceTools.SequenceSet;
 import org.roettig.SequenceTools.exception.FileParseErrorException;
-import org.roettig.maths.statistics.Statistics;
+
 
 public abstract class ASAFlow
 {
+	/**
+	 * The class ASAFlowContext stores contextual information about the flow which is communicated
+	 * to any ASAFlowInterceptor and can be modified by these interceptors.
+	 * 
+	 * @author roettig
+	 *
+	 */
 	final public class ASAFlowContext
 	{
 		public String 								outputdir = "";	
@@ -75,7 +78,21 @@ public abstract class ASAFlow
 	}
 	
 	protected ASAFlowContext ctx = new ASAFlowContext();
+	protected String lastStage;
+	protected PrintStream logstream = System.out;
 	
+	protected PrimalEncoder<String> encoder = new WoldEncoder();
+	
+	// interceptors
+	protected ASAFlowInterceptor seqfilterInterceptor = new SequenceFilterInterceptor();
+	protected ASAFlowInterceptor alignmentInterceptor = new AlignmentInterceptor(new MuscleAlignmentBuilder());
+	protected ASAFlowInterceptor sigfilterInterceptor = new SignatureFilterInterceptor();
+	
+	/**
+	 * ctor with supplied job data.
+	 * 
+	 * @param _jd job data
+	 */
 	public ASAFlow(ASAJob _jd)
 	{
 		ctx.jd = _jd;
@@ -89,15 +106,18 @@ public abstract class ASAFlow
 		// connect ASCs own log handler
 		Handler loghandler = new ASALogHandler(this);
 		Logger.getLogger("org.roettig.SequenceTools.ThreeDCoffeeAlignment").addHandler(loghandler);
-		Logger.getLogger("org.roettig.ML2.base.evaluation.ModelValidation").addHandler(loghandler);
+		Logger.getLogger("org.roettig.MLToolbox.validation.ModelValidation").addHandler(loghandler);
 		Logger.getLogger("org.roettig.PDBTools").addHandler(loghandler);
 
 
 	}
 	
-	protected String lastStage;
-	protected PrintStream logstream = System.out;
-	
+	/**
+	 * sends out log message for current stage.
+	 * 
+	 * @param stage
+	 * @param message
+	 */
 	public void log(String stage, String message)
 	{		
 		if(lastStage!=stage)
@@ -107,16 +127,25 @@ public abstract class ASAFlow
 		lastStage = stage;
 	}
 
+	/**
+	 * turns on logging.
+	 */
 	public void turnOnLogging()
 	{
 		Logger.getLogger("").setLevel(Level.INFO);	
 	}
 
+	/**
+	 * turns off any logging.
+	 */
 	public void turnOffLogging()
 	{
 		Logger.getLogger("").setLevel(Level.OFF);
 	}
 
+	/**
+	 * detach any log handlers.
+	 */
 	public void clearLogHandlers()
 	{
 		// clear previous log handlers
@@ -127,6 +156,11 @@ public abstract class ASAFlow
 		}	
 	}
 	
+	/**
+	 * terminates the execution of this flow with the supplied error message.
+	 * 
+	 * @param message
+	 */
 	public void exit(String message)
 	{
 		System.err.println(message);
@@ -162,11 +196,16 @@ public abstract class ASAFlow
 		store();
 	}
 	
+	/**
+	 * read any input data.
+	 */
 	protected void readInput()
-	{
-		
+	{	
 	}
 
+	/**
+	 * reads in the structure from a PDB file.
+	 */
 	protected void readStructure()
 	{
 		PDBFileReader pdbreader = new PDBFileReader();
@@ -189,15 +228,21 @@ public abstract class ASAFlow
 		log("readStructure","extracted sequence from first chain "+ctx.template.seqString());
 	}
 
+	/**
+	 * extract active site residues (ASRs) from template structure.
+	 */
 	protected void extractASRs()
 	{
+		// get residue locators of ASRs from context
 		List<ResidueLocator> locs = ctx.jd.getReslocs();
+		// and extract ASRs from structre
 		ctx.asrs = PDBTools.getASCResidues(ctx.struc, locs, ctx.jd.getPositions(), ctx.jd.getDistance());
 
-		List<Group> centers     = PDBTools.getGroups(ctx.struc, locs);
+		List<Group> centers = PDBTools.getGroups(ctx.struc, locs);
 
-		List<Group> groups = PDBTools.getASCGroups(ctx.struc, locs, ctx.jd.getPositions(), ctx.jd.getDistance());
+		List<Group> groups  = PDBTools.getASCGroups(ctx.struc, locs, ctx.jd.getPositions(), ctx.jd.getDistance());
 
+		// write out active site atoms to pdb file
 		PrintWriter out = null;
 		try
 		{
@@ -238,6 +283,9 @@ public abstract class ASAFlow
 		
 	}
 	
+	/**
+	 * read training sequences from files.
+	 */
 	protected void readSequences()
 	{
 		int idx = 1;
@@ -273,7 +321,7 @@ public abstract class ASAFlow
 			for(Sequence seq: seqs)
 			{
 				String sid = String.format("%d|%d",c,idx);
-				//Sequence tmpseq = SeqTools.makeProteinSequence(c+"|"+seq.getName(),seq.seqString());
+
 				Sequence tmpseq = SeqTools.makeProteinSequence(sid,seq.seqString());
 
 				ctx.intern_seq_name_2_orig_seqname.put(sid,seq.getName());
@@ -285,25 +333,34 @@ public abstract class ASAFlow
 		}
 	}
 
-	protected ASAFlowInterceptor seqfilterInterceptor = new SequenceFilterInterceptor();
 	
+
+	/**
+	 * filter sequences.
+	 */
 	protected void filterSequences()
 	{
 		seqfilterInterceptor.intercept(this, ctx);
 	}
 
-	protected ASAFlowInterceptor alignmentInterceptor = new AlignmentInterceptor(new MuscleAlignmentBuilder());
+	
 	
 	public void setAlignmentInterceptor(AlignmentInterceptor ai)
 	{
 		alignmentInterceptor = ai;
 	}
 	
+	/**
+	 * build multiple sequence alignment (MSA) of all training sequences and template.
+	 */
 	protected void buildAlignment()
 	{
 		alignmentInterceptor.intercept(this, ctx);
 	}
 
+	/**
+	 * extract signatures from all training sequences using msa.
+	 */
 	protected void extractSignatures()
 	{
 		// retrieve ASC residues columns from MSA
@@ -314,16 +371,22 @@ public abstract class ASAFlow
 		ctx.sigseqs.store(ctx.outputdir+"/sigs.afa");	
 	}
 	
-	protected ASAFlowInterceptor sigfilterInterceptor = new SignatureFilterInterceptor(); 
+	 
 
+	/**
+	 * filter signature sequences.
+	 */
 	protected void filterSignatures()
 	{
 		sigfilterInterceptor.intercept(this, ctx);
 	}
 
 	
-	protected PrimalEncoder<String> encoder = new WoldEncoder();
 	
+	
+	/**
+	 * prepare training data : encode training sequences into PrimalInstances, etc.
+	 */
 	protected void prepareTrainingData()
 	{
 		int n = 0;
@@ -358,87 +421,12 @@ public abstract class ASAFlow
 		}
 	}
 
+	protected abstract void validateModel();
 	
-	
-	
-	protected void validateModel()
-	{
-		if(ctx.jd.getNumberOfClasses()==1)
-		{
-			log("validateModel","no model validation since extract-only mode");
-			return;
-		}
-
-		
-		RBFKernel k = new RBFKernel();
-		double g_initial = RBFKernel.estimateGamma(ctx.samples);
-		
-		k.setGamma(g_initial/10.0,g_initial/4.0,g_initial/2.0,g_initial,g_initial*2,g_initial*4,g_initial*10);
-		
-		CSVCModel<PrimalInstance> m = new CSVCModel<PrimalInstance>(k);
-		m.setC(0.1,1.0,10.0,100.0,1000.0);
-		
-		
-		SelectedModel<PrimalInstance> bestModel = null;
-		log("validateModel","### Doing Nested CV ####");
-
-		//int nInner = ctx.jd.getNInnerFolds();
-		//int nOuter = ctx.jd.getNOuterFolds();
-		//
-
-		try
-		{
-			bestModel = ModelValidation.SimpleNestedCV(2,2,ctx.samples,m);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			exit("critical error - an error occured during Nested CV model checking");
-		}
-		ctx.model = bestModel.model;
-		ctx.jd.setFmeasure(bestModel.qual);
-		
-		List<Label> yp = null; List<Label> yt = null;
-		Prediction.split(bestModel.predictions, yt, yp);
-		
-		for(Label lab: ctx.labels)
-		{
-			List<Double> prec_rec = Statistics.calcPrecRec(lab, yp, yt);
-			log("###",String.format(Locale.ENGLISH,"prec(%s)=%.3f rec(%s)=%.3f",lab.toString(),prec_rec.get(0),lab.toString(),prec_rec.get(1)));
-		}
-		/*
-		Map<Object, List<Double>> stats = Statistics.calc
-
-		Map<String,Double> precs = new HashMap<String,Double>();
-		Map<String,Double> recs  = new HashMap<String,Double>();
-
-		for(Object o: stats.keySet())
-		{
-			log("###",String.format(Locale.ENGLISH,"prec(%s)=%.3f rec(%s)=%.3f",o,stats.get(o).get(0),o,stats.get(o).get(1)));
-			String classname = ctx.label_2_classname.get((Label) o);
-			precs.put(classname,stats.get(o).get(0));
-			recs.put(classname,stats.get(o).get(1));
-		}
-		ctx.jd.setPrecs(precs);
-		ctx.jd.setRecs(recs);
-		*/
-		log("validateModel","qual="+bestModel.qual);			
-		try
-		{
-			bestModel.model.store(ctx.outputdir+"/ASCmodel");
-		} 
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
 	protected abstract void analyzeImportance();
 
-
-	protected void buildFinalModel()
-	{		
-	}
+	protected abstract void buildFinalModel();
+	
 
 	protected void store()
 	{
