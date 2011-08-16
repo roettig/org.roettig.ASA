@@ -14,8 +14,12 @@ import java.util.logging.Logger;
 
 import org.biojava.bio.seq.Sequence;
 
+import org.roettig.ASC.kernels.BLOSUMStringKernel;
+import org.roettig.ASC.kernels.ChemSimStringKernel;
+import org.roettig.ASC.kernels.IndexedStringKernel;
 import org.roettig.MLToolbox.base.Prediction;
 import org.roettig.MLToolbox.base.instance.DualInstance;
+import org.roettig.MLToolbox.base.instance.InstanceContainer;
 import org.roettig.MLToolbox.base.instance.PrimalInstance;
 import org.roettig.MLToolbox.base.label.FactorLabel;
 import org.roettig.MLToolbox.base.label.Label;
@@ -23,6 +27,8 @@ import org.roettig.MLToolbox.kernels.KernelFunction;
 import org.roettig.MLToolbox.kernels.RBFKernel;
 import org.roettig.MLToolbox.model.CSVCModel;
 import org.roettig.MLToolbox.model.SelectedModel;
+import org.roettig.MLToolbox.validation.FMeasure;
+import org.roettig.MLToolbox.validation.GMeasure;
 import org.roettig.MLToolbox.validation.ModelValidation;
 import org.roettig.PDBTools.ResidueLocator;
 import org.roettig.SequenceTools.SeqTools;
@@ -94,7 +100,8 @@ public class ASC extends ASAFlow
 	@Override
 	protected void analyzeImportance()
 	{
-		/*
+		System.out.println("analyzing importance");
+		
 		final class PositionImportance
 		{
 			public PositionImportance(int _pos, double _imp)
@@ -123,7 +130,7 @@ public class ASC extends ASAFlow
 
 		int nC = ctx.labels.size();
 
-		Logger ml2logger = Logger.getLogger("org.roettig.ML2.base.evaluation.ModelValidation");
+		Logger ml2logger = Logger.getLogger("org.roettig.MLToolbox.validation.ModelValidation");
 		Level old_lvl = ml2logger.getLevel();
 		ml2logger.setLevel(Level.OFF);
 		
@@ -134,19 +141,24 @@ public class ASC extends ASAFlow
 			{
 				Vector<PositionImportance> imps = new Vector<PositionImportance>();
 
-				Label pos = new FactorLabel("pos",1.0);
-				Label neg = new FactorLabel("neg",2.0);
-				List<DualInstance<String>> subset = ModelValidation.binarySubset(ctx.stringsamples, ctx.labels.get(i), ctx.labels.get(j), pos, neg);
+				FactorLabel pos = new FactorLabel("pos_");
+				FactorLabel neg = new FactorLabel("neg_");
+				
+				InstanceContainer<DualInstance<String>> subset = ModelValidation.binarySubset(ctx.stringsamples, ctx.labels.get(i), ctx.labels.get(j), pos, neg);
+				
 				int K = ctx.ASRidx.size();
+				
 				double score[] = new double[K];
+				
 				for(int k=0;k<K;k++)
 				{
-					KernelFunction<DualInstance<String>> f = new IndexedSimilarityKernel( new StringHammingSimilarityDelegate() );
-					Parameter<Integer> kIdx = new Parameter<Integer>(IndexedSimilarityKernel.IDX, new Integer[]{k});
-					f.addParameter(kIdx);
-					Model<DualInstance<String>> m = new CSVCmodel<DualInstance<String>>(f);
-					Parameter<Double> C = new Parameter<Double>(CSVCmodel.C, new Double[]{100.0});
-					m.addParameter(C);
+					IndexedStringKernel f = new IndexedStringKernel( new BLOSUMStringKernel() );
+					f.addFixedIndex(k);
+					
+					
+					CSVCModel<DualInstance<String>> m = new CSVCModel<DualInstance<String>>(f);
+					m.setQualityMeasure(new GMeasure());
+					m.setC(100.0);
 					
 					double qual = 0.0;
 					try
@@ -157,7 +169,7 @@ public class ASC extends ASAFlow
 					{
 						e.printStackTrace();
 					}
-
+					
 					PositionImportance imp = new PositionImportance((int)k+1,qual);
 					imps.add(imp);
 				}
@@ -179,7 +191,7 @@ public class ASC extends ASAFlow
 			}
 		}
 		ml2logger.setLevel(old_lvl);
-		*/
+		
 	}
 
 	@Override

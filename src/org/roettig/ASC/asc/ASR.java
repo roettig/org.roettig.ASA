@@ -60,7 +60,6 @@ public class ASR extends ASAFlow
 			String toks[] = seq.getName().split("\\|");
 			
 			double y = Double.parseDouble(toks[toks.length-1]);
-			System.out.println(y);
 			
 			Label lab = new NumericLabel(y);
 			
