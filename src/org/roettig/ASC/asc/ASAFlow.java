@@ -72,7 +72,7 @@ public abstract class ASAFlow
 		public HMM										corehmm;
 		public SequenceSet      						sigseqs;
 		public ASCMSA 									ascmsa;
-		public InstanceContainer<PrimalInstance> 		samples = new DefaultInstanceContainer<PrimalInstance>();
+		public InstanceContainer<PrimalInstance> 		samples       = new DefaultInstanceContainer<PrimalInstance>();
 		public InstanceContainer<DualInstance<String>> 	stringsamples = new DefaultInstanceContainer<DualInstance<String>>();
 		public Model<?> 								model;
 	}
