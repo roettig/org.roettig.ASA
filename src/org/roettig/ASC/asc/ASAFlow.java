@@ -5,7 +5,6 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -19,10 +18,9 @@ import org.biojava.bio.structure.Structure;
 import org.biojava.bio.structure.io.PDBFileReader;
 import org.roettig.ASC.asc.interceptors.ASAFlowInterceptor;
 import org.roettig.ASC.asc.interceptors.AlignmentInterceptor;
-import org.roettig.ASC.asc.interceptors.SequenceFilterInterceptor;
+import org.roettig.ASC.asc.interceptors.DefaultSequenceFilterInterceptor;
 import org.roettig.ASC.asc.interceptors.SignatureFilterInterceptor;
 import org.roettig.ASC.kernels.WoldEncoder;
-import org.roettig.MLToolbox.base.Prediction;
 import org.roettig.MLToolbox.base.PrimalEncoder;
 import org.roettig.MLToolbox.base.impl.DefaultInstanceContainer;
 import org.roettig.MLToolbox.base.instance.DualInstance;
@@ -84,7 +82,7 @@ public abstract class ASAFlow
 	protected PrimalEncoder<String> encoder = new WoldEncoder();
 	
 	// interceptors
-	protected ASAFlowInterceptor seqfilterInterceptor = new SequenceFilterInterceptor();
+	protected ASAFlowInterceptor seqfilterInterceptor = new DefaultSequenceFilterInterceptor();
 	protected ASAFlowInterceptor alignmentInterceptor = new AlignmentInterceptor(new MuscleAlignmentBuilder());
 	protected ASAFlowInterceptor sigfilterInterceptor = new SignatureFilterInterceptor();
 	
@@ -334,8 +332,11 @@ public abstract class ASAFlow
 		}
 	}
 
+	public void setSequenceFilterInterceptor(ASAFlowInterceptor ai)
+	{
+		seqfilterInterceptor = ai;
+	}
 	
-
 	/**
 	 * filter sequences.
 	 */
@@ -344,9 +345,7 @@ public abstract class ASAFlow
 		seqfilterInterceptor.intercept(this, ctx);
 	}
 
-	
-	
-	public void setAlignmentInterceptor(AlignmentInterceptor ai)
+	public void setAlignmentInterceptor(ASAFlowInterceptor ai)
 	{
 		alignmentInterceptor = ai;
 	}
