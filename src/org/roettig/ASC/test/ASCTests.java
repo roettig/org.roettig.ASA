@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.roettig.ASC.asc.ASAFlow;
 import org.roettig.ASC.asc.ASAJob;
 import org.roettig.ASC.asc.ASC;
+import org.roettig.ASC.asc.ASR;
 import org.roettig.ASC.test.data.Resources;
 import org.roettig.PDBTools.ResidueLocator;
 
@@ -65,5 +66,36 @@ public class ASCTests extends TestCase
 		
 		jd.save(tmpdir+"/job.ini");
 	}
-
+	
+	
+	@Test
+	public void testASRNRPS() throws Exception
+	{
+		ASAJob jd = new ASAJob();
+		
+		String tmpdir = System.getProperty("java.io.tmpdir");
+		
+		jd.setPdbfile("data/1AMU.pdb");
+		jd.setOutputDir(tmpdir);
+		
+		ResidueLocator       resloc  = new ResidueLocator("A","PHE",566);
+		List<ResidueLocator> reslocs = new ArrayList<ResidueLocator>();
+		reslocs.add(resloc);
+		
+		jd.setReslocs(reslocs);
+		jd.setDistance(8.0);
+		
+		List<String> filenames = new ArrayList<String>();
+		
+		filenames.add("data/nrpsR.fa");		
+		jd.setFilenames(filenames);
+		
+		ASAFlow flow = new ASR(jd);
+		
+		flow.run();
+		
+		assertEquals(0.8373376080011307,jd.getQuality(),1e-4);
+		
+		jd.save(tmpdir+"/job.ini");
+	}
 }
