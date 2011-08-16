@@ -26,44 +26,37 @@ import org.roettig.maths.util.Pair;
  */
 public class ASAJob implements Serializable
 {
-	private static final long serialVersionUID = 5931979496857071036L;
-
-	private String modeltype      = null;
-	private String kerneltype     = null;
-	private String THREEDCOFFEEID = null;
-	private String MSAmethod      = "muscle";
-	private String templatesequence;
-	private String jobid;
-	private String qualityname;
-	private double quality;
-	private double fmeasure;
-	private int numberOfClasses;
-	private Map<String,Double> seqids  = new HashMap<String,Double>();
-	private Map<String,Double> precs   = new HashMap<String,Double>();
-	private Map<String,Double> recs    = new HashMap<String,Double>();
-	private Map<String,Integer> occupancies  = new HashMap<String,Integer>();
-	private List<String> classnames  = new Vector<String>();
-	private Map<String,String> sequenceclasses = new HashMap<String,String>();
-
-	private double distance;
-	private String templatename;
-	private List<SequenceAnchoredResidue> ascresidues = new Vector<SequenceAnchoredResidue>();
-	private List<ResidueLocator> reslocs = new Vector<ResidueLocator>();
-
-	private double pid_threshold      = 0.20;
-	private String pdbfile            = null; 
-	private String outputdir	      = "";
-
-
-	private List<String> filenames  = null;
-	private double mttsi              = 1.0;
-	private double frac               = 0.5;
-	private boolean usesigs           = true;
-	private int nInnerFolds           = 3;
-	private int nOuterFolds           = 3;
-	private List<Vector3> positions = new Vector<Vector3>();
-
-	private Map<Integer, Map<Integer,double[]> > scores = new HashMap<Integer, Map<Integer,double[]> >();
+	private String 									modeltype      = null;
+	private String 									kerneltype     = null;
+	private String 									THREEDCOFFEEID = null;
+	private String 									MSAmethod      = "muscle";
+	private String 									templatesequence;
+	private String 									jobid;
+	private String 									qualityname;
+	private double 									quality;
+	private double 									fmeasure;
+	private int 									numberOfClasses;
+	private Map<String,Double> 						seqids  = new HashMap<String,Double>();
+	private Map<String,Double> 						precs   = new HashMap<String,Double>();
+	private Map<String,Double> 						recs    = new HashMap<String,Double>();
+	private Map<String,Integer> 					occupancies  = new HashMap<String,Integer>();
+	private List<String> 							classnames  = new Vector<String>();
+	private Map<String,String> 						sequenceclasses = new HashMap<String,String>();
+	private double 									distance;
+	private String 									templatename;
+	private List<SequenceAnchoredResidue> 			ascresidues = new Vector<SequenceAnchoredResidue>();
+	private List<ResidueLocator> 					reslocs = new Vector<ResidueLocator>();
+	private double 									pid_threshold      = 0.20;
+	private String 									pdbfile            = null; 
+	private String 									outputdir	      = "";
+	private List<String> 							filenames  = null;
+	private double 									mttsi              = 1.0;
+	private double 									frac               = 0.5;
+	private boolean 								usesigs           = true;
+	private int 									nInnerFolds           = 3;
+	private int 									nOuterFolds           = 3;
+	private List<Vector3> 							positions = new Vector<Vector3>();
+	private Map<Integer, Map<Integer,double[]> > 	scores = new HashMap<Integer, Map<Integer,double[]> >();
 
 	Map<String, List<Double> > hyperparams;
 

@@ -53,28 +53,28 @@ public abstract class ASAFlow
 	 */
 	final public class ASAFlowContext
 	{
-		public String 								outputdir = "";	
-		public ASAJob 								jd;
-		public Structure 							struc;
-		public Sequence 							template;
-		public Map<Integer,SequenceAnchoredResidue> ASRidx;
-		public List<SequenceAnchoredResidue> 		asrs;
-		public List<Label>    						labels  = new Vector<Label>();
-		public Map<Label,String> 					label_2_classname = new HashMap<Label,String>();
-		public Map<String,String>  					intern_seq_name_2_orig_seqname = new HashMap<String,String>();
-		public Map<String,Label> 					intern_seq_name_2_class = new HashMap<String,Label>();
-		public SequenceSet      					coreseqs = new SequenceSet();
-		public SequenceSet      					allseqs  = new SequenceSet();
-		public Map<Sequence,Integer> 				seq2class = new HashMap<Sequence,Integer>();		
-		public MSA              					allmsa   = null;
-		public Map<Sequence,Double>  				seqdists = new HashMap<Sequence,Double>();
-		public MSA              					coremsa;
-		public HMM									corehmm;
-		public SequenceSet      					sigseqs;
-		public ASCMSA 								ascmsa;
-		public InstanceContainer<PrimalInstance> 	samples = new DefaultInstanceContainer<PrimalInstance>();
-		public InstanceContainer<DualInstance<String>> stringsamples = new DefaultInstanceContainer<DualInstance<String>>();
-		public Model<?> 							model;
+		public String 									outputdir="";	
+		public ASAJob 									jd;
+		public Structure 								struc;
+		public Sequence 								template;
+		public Map<Integer,SequenceAnchoredResidue> 	ASRidx;
+		public List<SequenceAnchoredResidue> 			asrs;
+		public List<Label>    							labels  = new Vector<Label>();
+		public Map<Label,String> 						label_2_classname = new HashMap<Label,String>();
+		public Map<String,String>  						intern_seq_name_2_orig_seqname = new HashMap<String,String>();
+		public Map<String,Label> 						intern_seq_name_2_class = new HashMap<String,Label>();
+		public SequenceSet      						coreseqs = new SequenceSet();
+		public SequenceSet      						allseqs  = new SequenceSet();
+		public Map<Sequence,Integer> 					seq2class = new HashMap<Sequence,Integer>();		
+		public MSA              						allmsa   = null;
+		public Map<Sequence,Double>  					seqdists = new HashMap<Sequence,Double>();
+		public MSA              						coremsa;
+		public HMM										corehmm;
+		public SequenceSet      						sigseqs;
+		public ASCMSA 									ascmsa;
+		public InstanceContainer<PrimalInstance> 		samples = new DefaultInstanceContainer<PrimalInstance>();
+		public InstanceContainer<DualInstance<String>> 	stringsamples = new DefaultInstanceContainer<DualInstance<String>>();
+		public Model<?> 								model;
 	}
 	
 	protected ASAFlowContext ctx = new ASAFlowContext();
@@ -105,6 +105,7 @@ public abstract class ASAFlow
 
 		// connect ASCs own log handler
 		Handler loghandler = new ASALogHandler(this);
+		
 		Logger.getLogger("org.roettig.SequenceTools.ThreeDCoffeeAlignment").addHandler(loghandler);
 		Logger.getLogger("org.roettig.MLToolbox.validation.ModelValidation").addHandler(loghandler);
 		Logger.getLogger("org.roettig.PDBTools").addHandler(loghandler);
