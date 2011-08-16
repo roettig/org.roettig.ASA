@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/org.roettig.MLToolbox.jar"/>
 	<classpathentry kind="lib" path="lib/org.roettig.maths.jar"/>
 	<classpathentry kind="lib" path="lib/Jama-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
