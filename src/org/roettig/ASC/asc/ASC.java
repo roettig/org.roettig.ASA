@@ -99,9 +99,7 @@ public class ASC extends ASAFlow
 
 	@Override
 	protected void analyzeImportance()
-	{
-		System.out.println("analyzing importance");
-		
+	{		
 		final class PositionImportance
 		{
 			public PositionImportance(int _pos, double _imp)
