@@ -1,0 +1,40 @@
+<project default="build">
+
+	<target name="build" depends="compile">
+		<jar destfile="build/org.roettig.ASA.jar" basedir="build/classes"/>
+	</target>
+	
+	<target name="compile" depends="prepare">
+		
+		<!-- compile class files -->
+		<javac srcdir="." destdir="build/classes" includeantruntime="no">
+			<classpath>
+				<pathelement location="lib/biojava.jar"/>
+				<pathelement location="lib/bytecode.jar"/>
+				<pathelement location="lib/Jama-1.0.2.jar"/>
+				<pathelement location="lib/org.roettig.maths.jar"/>
+				<pathelement location="lib/org.roettig.MLToolbox.jar"/>
+				<pathelement location="lib/org.roettig.PDBTools.jar"/>
+				<pathelement location="lib/org.roettig.SequenceTools.jar"/>
+				<pathelement location="lib/junit.jar"/>
+		    </classpath>
+		</javac>
+		
+		<!-- copy sources -->
+		<copy todir="build/classes">
+		   <fileset dir="src" includes="**/*.java"/>
+		</copy>
+		
+	</target>
+	
+	<target name="prepare">
+		<delete dir="build"/>
+		<mkdir dir="build"/>
+		<mkdir dir="build/classes"/>
+	</target>
+	
+	<target name="clean">
+		<delete dir="build"/>
+	</target>
+	
+</project>
