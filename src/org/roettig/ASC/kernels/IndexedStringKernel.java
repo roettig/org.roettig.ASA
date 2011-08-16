@@ -50,7 +50,8 @@ public class IndexedStringKernel extends KernelFunction<DualInstance<String>>
         {
            if(fixedIdx.contains(i))
            {
-        	   s += k_fun.compute(new DualInstance<String>(null,xs.substring(i)),new DualInstance<String>(null,ys.substring(i)));
+        	   s += k_fun.compute( new DualInstance<String>( null, xs.substring(i,i+1)), new DualInstance<String>( null, ys.substring(i,i+1)));
+        	   //System.out.print(s+" ");
            }
         }
         
