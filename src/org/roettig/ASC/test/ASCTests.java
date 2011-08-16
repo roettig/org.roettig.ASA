@@ -64,6 +64,24 @@ public class ASCTests extends TestCase
 		
 		assertEquals(0.954751131221719,jd.getQuality(),1e-4);
 		
+		// check position importance
+		
+		// 0 1: ala vs. tyr
+		assertEquals(1,jd.getRanks(0, 1)[9]);
+		assertEquals(2,jd.getRanks(0, 1)[5]);
+		assertEquals(3,jd.getRanks(0, 1)[14]);
+		
+		// 0 2: ala vs. asp
+		assertEquals(1,jd.getRanks(0, 2)[19]);
+		assertEquals(2,jd.getRanks(0, 2)[3]);
+		assertEquals(3,jd.getRanks(0, 2)[33]);
+		
+		// 1 2: tyr vs. asp
+		assertEquals(1,jd.getRanks(1, 2)[3]);
+		assertEquals(2,jd.getRanks(1, 2)[5]);
+		assertEquals(3,jd.getRanks(1, 2)[9]);
+		
+		
 		jd.save(tmpdir+"/job.ini");
 	}
 	
